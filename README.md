@@ -8,9 +8,9 @@ SurveyJS: A free and open-source MIT-licensed JavaScript form builder library th
 This repository provides a wrapper PCF components for SurveyJs to be used in Powerplatform.
 
 ## Features
-SurveyJS Form Wrapper - PCF component which wraps the SurveyJS form component for Powerapps.
+SurveyJS Form Wrapper - PCF component which wraps the SurveyJS form component for Powerplatform.
 
-SurveyJS Creator Wrapper - PCF component which wraps the SurveyJS Creator component for Powerapps.
+SurveyJS Creator Wrapper - PCF component which wraps the SurveyJS Creator component for Powerplatform.
 
 ## Licensing
 
