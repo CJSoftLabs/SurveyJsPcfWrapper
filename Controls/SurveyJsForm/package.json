@@ -1,7 +1,7 @@
 {
-  "name": "pcf-project",
+  "name": "SurveyJsForm",
   "version": "1.0.0",
-  "description": "Project containing your PowerApps Component Framework (PCF) control.",
+  "description": "SurveyJs Form wrapper Project for PowerApps Component Framework (PCF) control.",
   "scripts": {
     "build": "pcf-scripts build",
     "clean": "pcf-scripts clean",
