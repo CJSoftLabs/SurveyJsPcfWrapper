@@ -41,8 +41,6 @@ export class SurveyJsBuilderPcfComponent extends React.Component<SurveyJsBuilder
         console.log("SurveyJsBuilderPcfComponent: constructor called.");
 
         this.creator = new SurveyCreator(this.props.creatorOptions);
-        //this.creator.text = window.localStorage.getItem("survey-json") || JSON.stringify(this.state.SurveyBuilderData);
-        //this.creator.text = JSON.stringify(this.props.SurveyBuilderData) || "{}";
 
         this.creator.saveSurveyFunc = () => { 
           this.props.onValueChanged(this.creator.text);

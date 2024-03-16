@@ -31,6 +31,7 @@ export class SurveyJsFormBuilder implements ComponentFramework.StandardControl<I
     private notifyOutputChanged: () => void;
     private container: HTMLDivElement;
     private jsonInput: string;
+    private autoSave: boolean;
     private rootControl: Root;
     private oParam: SurveyJsBuilderPcfProps;
 
@@ -48,10 +49,7 @@ export class SurveyJsFormBuilder implements ComponentFramework.StandardControl<I
         this.oParam = {
             SurveyBuilderData: JSON.parse("{}"),
             onValueChanged: this.onJsonValueChanged,
-            creatorOptions: {
-                showLogicTab: true,
-                isAutoSave: true
-            }
+            creatorOptions: {}
         };
     }
 
@@ -70,6 +68,7 @@ export class SurveyJsFormBuilder implements ComponentFramework.StandardControl<I
 
         // Add control initialization code
         this.jsonInput = context.parameters.JsonInput.raw || "{}";
+        this.autoSave = context.parameters.AutoSave.raw || false;
 
         // Parse JSON and render controls
         this.renderControls();
@@ -84,6 +83,7 @@ export class SurveyJsFormBuilder implements ComponentFramework.StandardControl<I
     {
         // Add code to update control view
         this.jsonInput = context.parameters.JsonInput.raw || "{}";
+        this.autoSave = context.parameters.AutoSave.raw || false;
         
         // Parse JSON and render controls
         this.renderControls();
@@ -93,6 +93,11 @@ export class SurveyJsFormBuilder implements ComponentFramework.StandardControl<I
         console.log("Render Control triggered.");
         try {
             this.oParam.SurveyBuilderData = JSON.parse(this.jsonInput);
+            this.oParam.creatorOptions = {
+                showLogicTab: true,
+                showThemeTab: true,
+                isAutoSave: this.autoSave
+            }
         } catch (error) {
             console.error("Error parsing JSON:", error);
             this.oParam.SurveyBuilderData = {};
@@ -103,11 +108,10 @@ export class SurveyJsFormBuilder implements ComponentFramework.StandardControl<I
         {
             this.rootControl = createRoot(this.container);
         }
-        const childComponent = React.createElement(
+        this.rootControl.render(React.createElement(
             SurveyJsBuilderPcfComponent,
             this.oParam
-        );
-        this.rootControl.render(childComponent);
+        ));
     }
 
     /**

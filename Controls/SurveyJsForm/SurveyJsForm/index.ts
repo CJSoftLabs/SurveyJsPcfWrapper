@@ -31,15 +31,18 @@ export class SurveyJsForm implements ComponentFramework.StandardControl<IInputs,
 	private notifyOutputChanged: () => void;
     private container: HTMLDivElement;
     private SurveyModelData: string;
-    private SurveyRecordId: string;
+    private ReadOnly: boolean;
+    private ReturnNoData: boolean;
+    private ThemeName: string;
     private SurveyData: string;
     private rootControl: Root;
     private oParam: SurveyJsFormPcfProps;
+    private Completed: boolean;
 
-    onJsonValueChanged = (strJson: string): {} => {
+    onJsonValueChanged = (strJson: string, bCompleted: boolean): {} => {
         this.SurveyData = strJson;
+        this.Completed = bCompleted;
         console.log("onJsonValueChanged triggered");
-        // console.log(this.jsonInput);
         this.notifyOutputChanged();
 
         return {}; 
@@ -52,7 +55,7 @@ export class SurveyJsForm implements ComponentFramework.StandardControl<IInputs,
     {
         this.oParam = {
             SurveyModelData: JSON.parse("{}"),
-            SurveyRecordId: "",
+            ThemeName: "Default",
             SurveyData: JSON.parse("{}"),
             ReadOnly: false,
             onValueChanged: this.onJsonValueChanged
@@ -75,8 +78,10 @@ export class SurveyJsForm implements ComponentFramework.StandardControl<IInputs,
 
         // Add control initialization code
         this.SurveyModelData = context.parameters.SurveyModelData.raw || "{}";
-        this.SurveyRecordId = (context.mode as any).contextInfo.entityId;
         this.SurveyData = context.parameters.SurveyData.raw || "{}";
+        this.ReadOnly = context.parameters.ReadOnly.raw || false;
+        this.ThemeName = context.parameters.ThemeName.raw || "Default";
+        this.ReturnNoData = context.parameters.ReturnNoData.raw || false;
 
         // Parse JSON and render controls
         this.renderControls();
@@ -92,8 +97,10 @@ export class SurveyJsForm implements ComponentFramework.StandardControl<IInputs,
         // Add code to update control view
         this.SurveyModelData = context.parameters.SurveyModelData.raw || "{}";
         this.SurveyData = context.parameters.SurveyData.raw || "{}";
+        this.ReadOnly = context.parameters.ReadOnly.raw || false;
+        this.ThemeName = context.parameters.ThemeName.raw || "Default";
+        this.ReturnNoData = context.parameters.ReturnNoData.raw || false;
         console.log("UpdateView triggered");
-        console.log(this.SurveyData);
         
         // Parse JSON and render controls
         this.renderControls();
@@ -113,7 +120,8 @@ export class SurveyJsForm implements ComponentFramework.StandardControl<IInputs,
             console.error("Error parsing JSON:", error);
             this.oParam.SurveyData = "{}";
         }
-        this.oParam.SurveyRecordId = this.SurveyRecordId;
+        this.oParam.ReadOnly = this.ReadOnly;
+        this.oParam.ThemeName = this.ThemeName;
 
         if(this.rootControl === undefined)
         {
@@ -123,7 +131,6 @@ export class SurveyJsForm implements ComponentFramework.StandardControl<IInputs,
             SurveyJsFormPcfComponent,
             this.oParam
         ));
-        //this.rootControl.render(childComponent);
     }
 
     /**
@@ -132,7 +139,11 @@ export class SurveyJsForm implements ComponentFramework.StandardControl<IInputs,
      */
     public getOutputs(): IOutputs
     {
-        return { SurveyData: this.SurveyData } as IOutputs;
+        if(this.ReturnNoData)
+        {
+            return { } as IOutputs;    
+        }
+        return { SurveyData: this.SurveyData, Completed: this.Completed } as IOutputs;
     }
 
     /**

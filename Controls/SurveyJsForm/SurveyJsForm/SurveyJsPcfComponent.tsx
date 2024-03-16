@@ -26,28 +26,73 @@ import React from "react";
 import 'survey-core/defaultV2.min.css';
 import { Model } from 'survey-core';
 import { Survey } from 'survey-react-ui';
+import * as SurveyTheme from 'survey-core/themes';
 
 export interface SurveyJsFormPcfProps {
     SurveyModelData: string;
-    SurveyRecordId: string;
+    ThemeName: string;
     SurveyData: string;
-    onValueChanged: (strJson: string) => {};
+    onValueChanged: (strJson: string, bCompleted: boolean) => {};
     ReadOnly: boolean;
 }
 
 export class SurveyJsFormPcfComponent extends React.Component<SurveyJsFormPcfProps> {
     SurveyModel: Model;
     SurveyData: string;
-    SurveyRecordId: string;
+    ThemeName: string;
+    ThemeObjects: any;
+
     constructor(props: SurveyJsFormPcfProps) {
         super(props);
+        debugger;
+        this.ThemeObjects = {
+            DefaultLight: SurveyTheme.DefaultLight,
+            DefaultDark: SurveyTheme.DefaultDark,
+            DefaultLightPanelless: SurveyTheme.DefaultLightPanelless,
+            DefaultDarkPanelless: SurveyTheme.DefaultDarkPanelless,
+            SharpLight: SurveyTheme.SharpLight,
+            SharpDark: SurveyTheme.SharpDark,
+            SharpLightPanelless: SurveyTheme.SharpLightPanelless,
+            SharpDarkPanelless: SurveyTheme.SharpDarkPanelless,
+            BorderlessLight: SurveyTheme.BorderlessLight,
+            BorderlessDark: SurveyTheme.BorderlessDark,
+            BorderlessLightPanelless: SurveyTheme.BorderlessLightPanelless,
+            BorderlessDarkPanelless: SurveyTheme.BorderlessDarkPanelless,
+            FlatLight: SurveyTheme.FlatLight,
+            FlatDark: SurveyTheme.FlatDark,
+            FlatLightPanelless: SurveyTheme.FlatLightPanelless,
+            FlatDarkPanelless: SurveyTheme.FlatDarkPanelless,
+            PlainLight: SurveyTheme.PlainLight,
+            PlainDark: SurveyTheme.PlainDark,
+            PlainLightPanelless: SurveyTheme.PlainLightPanelless,
+            PlainDarkPanelless: SurveyTheme.PlainDarkPanelless,
+            DoubleBorderLight: SurveyTheme.DoubleBorderLight,
+            DoubleBorderDark: SurveyTheme.DoubleBorderDark,
+            DoubleBorderLightPanelless: SurveyTheme.DoubleBorderLightPanelless,
+            DoubleBorderDarkPanelless: SurveyTheme.DoubleBorderDarkPanelless,
+            LayeredLight: SurveyTheme.LayeredLight,
+            LayeredDark: SurveyTheme.LayeredDark,
+            LayeredLightPanelless: SurveyTheme.LayeredLightPanelless,
+            LayeredDarkPanelless: SurveyTheme.LayeredDarkPanelless,
+            SolidLight: SurveyTheme.SolidLight,
+            SolidDark: SurveyTheme.SolidDark,
+            SolidLightPanelless: SurveyTheme.SolidLightPanelless,
+            SolidDarkPanelless: SurveyTheme.SolidDarkPanelless,
+            ThreeDimensionalLight: SurveyTheme.ThreeDimensionalLight,
+            ThreeDimensionalDark: SurveyTheme.ThreeDimensionalDark,
+            ThreeDimensionalLightPanelless: SurveyTheme.ThreeDimensionalLightPanelless,
+            ThreeDimensionalDarkPanelless: SurveyTheme.ThreeDimensionalDarkPanelless,
+            ContrastLight: SurveyTheme.ContrastLight,
+            ContrastDark: SurveyTheme.ContrastDark,
+            ContrastLightPanelless: SurveyTheme.ContrastLightPanelless,
+            ContrastDarkPanelless: SurveyTheme.ContrastDarkPanelless
+            };
         console.log("SurveyJsFormPcfProps: constructor called.");
-        this.SurveyRecordId = this.props.SurveyRecordId;
         this.SurveyData = this.props.SurveyData;
         this.SurveyModel = new Model(this.props.SurveyModelData);
+        this.ThemeName = this.props.ThemeName;
         this.SurveyModel.data = this.SurveyData;
-
-        console.log(this.SurveyRecordId);
+        this.SurveyModel.applyTheme(this.GetTheme(this.ThemeName));
 
         if(this.props.ReadOnly) {
             this.SurveyModel.mode = "display";
@@ -55,18 +100,22 @@ export class SurveyJsFormPcfComponent extends React.Component<SurveyJsFormPcfPro
 
         this.SurveyModel.onComplete.add((sender) => {
             this.SurveyData = sender.data;
-            this.props.onValueChanged(JSON.stringify(this.SurveyData));
+            this.props.onValueChanged(JSON.stringify(this.SurveyData), true);
         });
 
         this.SurveyModel.onValueChanged.add((sender) => {
             this.SurveyData = sender.data;
-            this.props.onValueChanged(JSON.stringify(this.SurveyData));
+            this.props.onValueChanged(JSON.stringify(this.SurveyData), false);
         });
 
         this.SurveyModel.onCurrentPageChanged.add((sender: any) => {
             this.SurveyData = sender.data;
-            this.props.onValueChanged(JSON.stringify(this.SurveyData));
+            this.props.onValueChanged(JSON.stringify(this.SurveyData), false);
         });
+    }
+
+    GetTheme(ThemeName: string) {
+        return this.ThemeObjects[ThemeName] ?? SurveyTheme.SharpLight;
     }
 
     render() {
