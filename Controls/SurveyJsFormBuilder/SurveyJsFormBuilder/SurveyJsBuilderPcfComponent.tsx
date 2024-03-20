@@ -26,7 +26,13 @@ import React from "react";
 import "survey-core/defaultV2.min.css";
 import "survey-creator-core/survey-creator-core.min.css";
 import { SurveyCreator, SurveyCreatorComponent } from "survey-creator-react/survey-creator-react";
+import { RegisterQuillRteToolboxItem, RegisterQuillRteComponent } from './QuillRteComponent';
+import { RegisterCkEditorRteToolboxItem, RegisterCkEditorRteComponent } from './CkEditorRteComponent';
 
+RegisterQuillRteToolboxItem();
+RegisterQuillRteComponent();
+RegisterCkEditorRteToolboxItem();
+RegisterCkEditorRteComponent();
 
 export interface SurveyJsBuilderPcfProps {
     SurveyBuilderData: any;
@@ -40,13 +46,112 @@ export class SurveyJsBuilderPcfComponent extends React.Component<SurveyJsBuilder
         super(props);
         console.log("SurveyJsBuilderPcfComponent: constructor called.");
 
+        debugger;
         this.creator = new SurveyCreator(this.props.creatorOptions);
+
+        // Add the Quill question type to the Toolbox
+        const toolboxItems = this.creator.toolbox.items;
+        const quillIndex = toolboxItems.findIndex((item) => item.name === "quill-rte");
+
+        if(quillIndex > -1)
+        {
+          const quillItem = toolboxItems.splice(quillIndex, 1)[0];
+          quillItem.tooltip = "Quill - Rich Text Editor";
+          quillItem.title = "Quill - Rich Text Editor";
+          quillItem.iconName = "icon-quill-rte";
+          toolboxItems.unshift(quillItem);
+        }
+
+        // Add the CkEditor question type to the Toolbox
+        const ckeditorIndex = toolboxItems.findIndex((item) => item.name === "ckeditor-rte");
+
+        if(ckeditorIndex > -1)
+        {
+          const ckeditorItem = toolboxItems.splice(ckeditorIndex, 1)[0];
+          ckeditorItem.tooltip = "CkEditor - Rich Text Editor";
+          ckeditorItem.title = "CkEditor - Rich Text Editor";
+          ckeditorItem.iconName = "icon-ckeditor-rte";
+          toolboxItems.unshift(ckeditorItem);
+        }
+
+        this.creator.toolbox.defineCategories([
+          {
+            category: "Choice-Based Questions",
+            items: [
+              "dropdown",
+              "checkbox",
+              "radiogroup",
+              "tagbox",
+              "rating",
+              "boolean"
+            ]
+          },
+          {
+            category: "Text Input Questions",
+            items: [
+              "text",
+              // Override the display title
+              { name: "comment", title: "Multi-Line Input" },
+              "ckeditor-rte",
+              "multipletext",
+              "quill-rte"
+            ]
+          },
+          {
+            category: "Read-Only Elements",
+            items: [
+              { name: "expression", title: "Expression" }
+            ]
+          },
+          {
+            category: "Matrices",
+            items: [
+              "matrix",
+              "matrixdropdown",
+              "matrixdynamic"
+            ]
+          },
+          {
+            category: "Panels",
+            items: [
+              "panel",
+              "paneldynamic"
+            ]
+          }
+        ], false);
+        
+        this.creator.toolbox.allowExpandMultipleCategories = true;
+        this.creator.toolbox.showCategoryTitles = true;
+        this.creator.toolbox.forceCompact = false;
+    
+        // Apply HTML markup to survey contents
+        /*this.creator.survey.onTextMarkdown.add(this.applyHtml);
+        this.creator.onSurveyInstanceCreated.add((options) => {
+            console.log(options);
+            if (options.activeTab === "designer" || options.activeTab === "test") {
+                options.survey.onTextMarkdown.add(this.applyHtml);
+            }
+        });*/
 
         this.creator.saveSurveyFunc = () => { 
           this.props.onValueChanged(this.creator.text);
           console.log(this.props.SurveyBuilderData);
         };
     }
+
+    /*applyHtml(options: any) {
+      let str = options.text;
+      if(!(str === undefined || str === "undefined" || str === null))
+      {
+        if (str.indexOf("<p>") === 0) {
+            // Remove root paragraphs <p></p>
+            str = str.substring(3);
+            str = str.substring(0, str.length - 4);
+        }
+        // Set HTML markup to render
+        options.html = str;
+      }
+    }*/
 
     render() {
       this.creator.text = JSON.stringify(this.props.SurveyBuilderData) || "{}";

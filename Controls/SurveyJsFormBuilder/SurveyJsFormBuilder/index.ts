@@ -68,7 +68,7 @@ export class SurveyJsFormBuilder implements ComponentFramework.StandardControl<I
 
         // Add control initialization code
         this.jsonInput = context.parameters.JsonInput.raw || "{}";
-        this.autoSave = context.parameters.AutoSave.raw || false;
+        this.autoSave = this.ToBoolean(context.parameters.AutoSave.raw || "");
 
         // Parse JSON and render controls
         this.renderControls();
@@ -83,10 +83,23 @@ export class SurveyJsFormBuilder implements ComponentFramework.StandardControl<I
     {
         // Add code to update control view
         this.jsonInput = context.parameters.JsonInput.raw || "{}";
-        this.autoSave = context.parameters.AutoSave.raw || false;
+        this.autoSave = this.ToBoolean(context.parameters.AutoSave.raw || "");
         
         // Parse JSON and render controls
         this.renderControls();
+    }
+
+    private ToBoolean(strInput: string): boolean {
+        let bReturn = false;
+        switch(strInput.toLowerCase().trim()) {
+            case "1":
+            case "true":
+            case "yes":
+                bReturn = true;
+                break;
+        }
+
+        return bReturn;
     }
 
     private renderControls(): void {

@@ -1,0 +1,32 @@
+.sv-popup__container {
+    top: 0 !important;
+}
+
+/*Quill - RTE related styles*/
+/*Start*/
+.ql-toolbar.ql-snow {
+    white-space: normal;
+}
+.sv-string-editor--html {
+    white-space: normal !important;
+}
+.quill .ql-container {
+    max-height: calc(100% - 42px);
+}
+/*End*/
+
+/*CKEditor - RTE related styles*/
+/*Start*/
+.ck-editor__editable_inline {
+    height: calc(100% - 42px);
+}
+
+.ck-editor__main {
+    /* min-height: 200px; */
+    height: 200px;
+}
+
+.ck.ck-powered-by {
+    display: none;
+}
+/*End*/
