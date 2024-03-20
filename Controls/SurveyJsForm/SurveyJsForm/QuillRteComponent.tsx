@@ -25,7 +25,6 @@ SOFTWARE.
 import * as React from "react";
 import { ElementFactory, Question, Serializer } from "survey-core";
 import { SurveyQuestionElementBase, ReactQuestionFactory } from "survey-react-ui";
-import { PropertyGridEditorCollection } from "survey-creator-core";
 import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
 import { SvgRegistry } from "survey-core"
@@ -111,15 +110,3 @@ export function RegisterQuillRteComponent() {
 		return React.createElement(SurveyQuestionQuill, props);
 	});
 }
-
-// Register `quill` as an editor for properties of the `html` types in the Survey Creator's Property Grid
-PropertyGridEditorCollection.register({
-    fit: function (prop: any) {
-        return prop.type == "html";
-    },
-    getJSON: function () {
-        return {
-            type: "quill-rte"
-        };
-    }
-});

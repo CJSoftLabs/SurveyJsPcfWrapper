@@ -40,10 +40,14 @@ export class SurveyJsForm implements ComponentFramework.StandardControl<IInputs,
     private Completed: boolean;
 
     onJsonValueChanged = (strJson: string, bCompleted: boolean): {} => {
+        console.log("onJsonValueChanged triggered");
         this.SurveyData = strJson;
         this.Completed = bCompleted;
-        console.log("onJsonValueChanged triggered");
-        this.notifyOutputChanged();
+
+        if(!this.ReturnNoData)
+        {
+            this.notifyOutputChanged();
+        }
 
         return {}; 
     };
@@ -79,9 +83,9 @@ export class SurveyJsForm implements ComponentFramework.StandardControl<IInputs,
         // Add control initialization code
         this.SurveyModelData = context.parameters.SurveyModelData.raw || "{}";
         this.SurveyData = context.parameters.SurveyData.raw || "{}";
-        this.ReadOnly = context.parameters.ReadOnly.raw || false;
+        this.ReadOnly = this.ToBoolean(context.parameters.ReadOnly.raw || "");
         this.ThemeName = context.parameters.ThemeName.raw || "Default";
-        this.ReturnNoData = context.parameters.ReturnNoData.raw || false;
+        this.ReturnNoData = this.ToBoolean(context.parameters.ReturnNoData.raw || "");
 
         // Parse JSON and render controls
         this.renderControls();
@@ -97,13 +101,26 @@ export class SurveyJsForm implements ComponentFramework.StandardControl<IInputs,
         // Add code to update control view
         this.SurveyModelData = context.parameters.SurveyModelData.raw || "{}";
         this.SurveyData = context.parameters.SurveyData.raw || "{}";
-        this.ReadOnly = context.parameters.ReadOnly.raw || false;
+        this.ReadOnly = this.ToBoolean(context.parameters.ReadOnly.raw || "");
         this.ThemeName = context.parameters.ThemeName.raw || "Default";
-        this.ReturnNoData = context.parameters.ReturnNoData.raw || false;
+        this.ReturnNoData = this.ToBoolean(context.parameters.ReturnNoData.raw || "");
         console.log("UpdateView triggered");
         
         // Parse JSON and render controls
         this.renderControls();
+    }    
+
+    private ToBoolean(strInput: string): boolean {
+        let bReturn = false;
+        switch(strInput.toLowerCase().trim()) {
+            case "1":
+            case "true":
+            case "yes":
+                bReturn = true;
+                break;
+        }
+
+        return bReturn;
     }
 
     private renderControls(): void {
@@ -139,10 +156,6 @@ export class SurveyJsForm implements ComponentFramework.StandardControl<IInputs,
      */
     public getOutputs(): IOutputs
     {
-        if(this.ReturnNoData)
-        {
-            return { } as IOutputs;    
-        }
         return { SurveyData: this.SurveyData, Completed: this.Completed } as IOutputs;
     }
 

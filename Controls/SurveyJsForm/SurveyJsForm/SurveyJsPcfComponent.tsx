@@ -27,6 +27,13 @@ import 'survey-core/defaultV2.min.css';
 import { Model } from 'survey-core';
 import { Survey } from 'survey-react-ui';
 import * as SurveyTheme from 'survey-core/themes';
+import { RegisterQuillRteToolboxItem, RegisterQuillRteComponent } from './QuillRteComponent';
+import { RegisterCkEditorRteToolboxItem, RegisterCkEditorRteComponent } from './CkEditorRteComponent';
+
+RegisterQuillRteToolboxItem();
+RegisterQuillRteComponent();
+RegisterCkEditorRteToolboxItem();
+RegisterCkEditorRteComponent();
 
 export interface SurveyJsFormPcfProps {
     SurveyModelData: string;
@@ -44,7 +51,6 @@ export class SurveyJsFormPcfComponent extends React.Component<SurveyJsFormPcfPro
 
     constructor(props: SurveyJsFormPcfProps) {
         super(props);
-        debugger;
         this.ThemeObjects = {
             DefaultLight: SurveyTheme.DefaultLight,
             DefaultDark: SurveyTheme.DefaultDark,

@@ -46,7 +46,6 @@ export class SurveyJsBuilderPcfComponent extends React.Component<SurveyJsBuilder
         super(props);
         console.log("SurveyJsBuilderPcfComponent: constructor called.");
 
-        debugger;
         this.creator = new SurveyCreator(this.props.creatorOptions);
 
         // Add the Quill question type to the Toolbox

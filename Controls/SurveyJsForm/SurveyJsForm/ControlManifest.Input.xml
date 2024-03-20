@@ -20,9 +20,9 @@
     <!-- property node identifies a specific, configurable piece of data that the control expects from CDS -->
     <property name="SurveyData" display-name-key="SurveyData(Json)" description-key="Survey Data(Json) for SurveyJs Form" of-type="Multiple" usage="bound" required="true" />
     <property name="SurveyModelData" display-name-key="SurveyModelData(Json)" description-key="Survey Model Data(Json) for SurveyJs Form" of-type="Multiple" usage="bound" required="true" />
-    <property name="ReadOnly" display-name-key="ReadOnly" description-key="Set ReadOnly property for SurveyJs Form" of-type="TwoOptions" usage="input" required="true" />
+    <property name="ReadOnly" display-name-key="ReadOnly" description-key="Set ReadOnly property for SurveyJs Form" of-type="SingleLine.Text" usage="input" required="true" />
     <property name="ThemeName" display-name-key="ThemeName" description-key="Set Theme Name for SurveyJs Form" of-type="SingleLine.Text" usage="input" required="true" />
-    <property name="ReturnNoData" display-name-key="ReturnNoData" description-key="Set ReturnNoData property for SurveyJs Form" of-type="TwoOptions" usage="input" required="true" />
+    <property name="ReturnNoData" display-name-key="ReturnNoData" description-key="Set ReturnNoData property for SurveyJs Form" of-type="SingleLine.Text" usage="input" required="true" />
     <!--
       Property node's of-type attribute can be of-type-group attribute.
       Example:
@@ -36,6 +36,7 @@
     -->
     <resources>
       <code path="index.ts" order="1"/>
+      <css path="css/SurveyJsForm.css" order="2" />
       <!-- UNCOMMENT TO ADD MORE RESOURCES
       <css path="css/SurveyJsForm.css" order="1" />
       <resx path="strings/SurveyJsForm.1033.resx" version="1.0.0" />
