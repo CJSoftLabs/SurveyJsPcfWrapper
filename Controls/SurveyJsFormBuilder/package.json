@@ -2,6 +2,10 @@
   "name": "SurveyJsFormBuilder",
   "version": "1.0.0",
   "description": "SurveyJs Form Builder wrapper Project for PowerApps Component Framework (PCF) control.",
+  "author": {
+    "name": "CJSoftLabs",
+    "email": "cjsoftlabs@gmail.com"
+  },
   "scripts": {
     "build": "pcf-scripts build",
     "clean": "pcf-scripts clean",

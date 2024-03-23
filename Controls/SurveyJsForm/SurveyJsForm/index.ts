@@ -25,7 +25,7 @@ SOFTWARE.
 import {IInputs, IOutputs} from "./generated/ManifestTypes";
 import React = require("react");
 import { createRoot, Root } from 'react-dom/client';
-import { SurveyJsFormPcfComponent, SurveyJsFormPcfProps } from "./SurveyJsPcfComponent";
+import { SurveyJsFormPcfComponent, SurveyJsFormPcfProps } from "./SurveyJsFormPcfComponent";
 
 export class SurveyJsForm implements ComponentFramework.StandardControl<IInputs, IOutputs> {
 	private notifyOutputChanged: () => void;
@@ -88,7 +88,7 @@ export class SurveyJsForm implements ComponentFramework.StandardControl<IInputs,
         this.ReturnNoData = this.ToBoolean(context.parameters.ReturnNoData.raw || "");
 
         // Parse JSON and render controls
-        this.renderControls();
+        //this.renderControls();
     }
 
 

@@ -1,7 +1,7 @@
 {
-  "name": "SurveyJsForm",
+  "name": "SurveyJsFormCollection",
   "version": "1.0.0",
-  "description": "SurveyJs Form wrapper Project for PowerApps Component Framework (PCF) control.",
+  "description": "Project containing your PowerApps Component Framework (PCF) control.",
   "author": {
     "name": "CJSoftLabs",
     "email": "cjsoftlabs@gmail.com"

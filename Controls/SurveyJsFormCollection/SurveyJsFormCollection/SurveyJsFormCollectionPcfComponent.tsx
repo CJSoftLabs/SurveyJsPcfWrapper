@@ -35,7 +35,7 @@ RegisterQuillRteComponent();
 RegisterCkEditorRteToolboxItem();
 RegisterCkEditorRteComponent();
 
-export interface SurveyJsFormPcfProps {
+export interface SurveyJsFormCollectionPcfProps {
     SurveyModelData: string;
     ThemeName: string;
     SurveyData: string;
@@ -43,13 +43,13 @@ export interface SurveyJsFormPcfProps {
     ReadOnly: boolean;
 }
 
-export class SurveyJsFormPcfComponent extends React.Component<SurveyJsFormPcfProps> {
+export class SurveyJsFormCollectionPcfComponent extends React.Component<SurveyJsFormCollectionPcfProps> {
     SurveyModel: Model;
     SurveyData: string;
     ThemeName: string;
     ThemeObjects: any;
 
-    constructor(props: SurveyJsFormPcfProps) {
+    constructor(props: SurveyJsFormCollectionPcfProps) {
         super(props);
         this.ThemeObjects = {
             DefaultLight: SurveyTheme.DefaultLight,
@@ -103,21 +103,22 @@ export class SurveyJsFormPcfComponent extends React.Component<SurveyJsFormPcfPro
         if(this.props.ReadOnly) {
             this.SurveyModel.mode = "display";
         }
+        else {
+            this.SurveyModel.onComplete.add((sender) => {
+                this.SurveyData = sender.data;
+                this.props.onValueChanged(JSON.stringify(this.SurveyData), true);
+            });
 
-        this.SurveyModel.onComplete.add((sender) => {
-            this.SurveyData = sender.data;
-            this.props.onValueChanged(JSON.stringify(this.SurveyData), true);
-        });
+            this.SurveyModel.onValueChanged.add((sender) => {
+                this.SurveyData = sender.data;
+                this.props.onValueChanged(JSON.stringify(this.SurveyData), false);
+            });
 
-        this.SurveyModel.onValueChanged.add((sender) => {
-            this.SurveyData = sender.data;
-            this.props.onValueChanged(JSON.stringify(this.SurveyData), false);
-        });
-
-        this.SurveyModel.onCurrentPageChanged.add((sender: any) => {
-            this.SurveyData = sender.data;
-            this.props.onValueChanged(JSON.stringify(this.SurveyData), false);
-        });
+            this.SurveyModel.onCurrentPageChanged.add((sender: any) => {
+                this.SurveyData = sender.data;
+                this.props.onValueChanged(JSON.stringify(this.SurveyData), false);
+            });
+        }
     }
 
     GetTheme(ThemeName: string) {
