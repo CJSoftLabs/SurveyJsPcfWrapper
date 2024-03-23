@@ -30,3 +30,13 @@
     display: none;
 }
 /*End*/
+
+.column-container {
+    display: flex;
+    /* align-items: flex-start; */
+  }
+  
+  .column-container div {
+    margin: 10px;
+    width: 100%;
+  }

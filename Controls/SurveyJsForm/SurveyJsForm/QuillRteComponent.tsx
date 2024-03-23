@@ -77,7 +77,13 @@ export class SurveyQuestionQuill extends SurveyQuestionElementBase {
         return this.question.value;
     }
     HandleValueChange = (val: any) => {
-        this.question.value = val;
+        if(val === "<p></p>") {
+            val = "";
+        }
+
+        if(this.question.value !== val) {
+            this.question.value = val;
+        }
     };
     // Support the read-only and design modes
     get style() {

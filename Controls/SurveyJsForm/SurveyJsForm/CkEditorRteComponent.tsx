@@ -125,7 +125,6 @@ export class SurveyQuestionCkEditor extends SurveyQuestionElementBase {
                 disabled={ isReadOnly }
                 onBlur={ ( event, editor ) => {
                     this.HandleValueChange(editor.getData());
-                    console.log(this.value);
                 } }
             />
         );
@@ -139,7 +138,6 @@ export class SurveyQuestionCkEditor extends SurveyQuestionElementBase {
 // Register `SurveyQuestionCkEditor` as a class that renders `CkEditor` questions
 export function RegisterCkEditorRteComponent() {
 	ReactQuestionFactory.Instance.registerQuestion(CUSTOM_TYPE, (props: any) => {
-        console.log(props);
 		return React.createElement(SurveyQuestionCkEditor, props);
 	});
 }

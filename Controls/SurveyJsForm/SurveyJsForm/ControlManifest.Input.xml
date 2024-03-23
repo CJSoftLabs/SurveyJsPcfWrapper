@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <manifest>
-  <control namespace="CJSoftLabs" constructor="SurveyJsForm" version="1.0.1" display-name-key="SurveyJsForm" description-key="SurveyJsForm description" control-type="standard" >
+  <control namespace="CJSoftLabs" constructor="SurveyJsForm" version="1.0.4" display-name-key="SurveyJsForm" description-key="SurveyJsForm description" control-type="standard" >
     <!--external-service-usage node declares whether this 3rd party PCF control is using external service or not, if yes, this control will be considered as premium and please also add the external domain it is using.
     If it is not using any external service, please set the enabled="false" and DO NOT add any domain below. The "enabled" will be false by default.
     Example1:
@@ -19,10 +19,16 @@
     </external-service-usage>
     <!-- property node identifies a specific, configurable piece of data that the control expects from CDS -->
     <property name="SurveyData" display-name-key="SurveyData(Json)" description-key="Survey Data(Json) for SurveyJs Form" of-type="Multiple" usage="bound" required="true" />
+    <property name="Mode" display-name-key="Mode" description-key="Mode for the SurveyJS form (Form/FormCollection)" of-type="SingleLine.Text" usage="input" required="true" />
     <property name="SurveyModelData" display-name-key="SurveyModelData(Json)" description-key="Survey Model Data(Json) for SurveyJs Form" of-type="Multiple" usage="bound" required="true" />
     <property name="ReadOnly" display-name-key="ReadOnly" description-key="Set ReadOnly property for SurveyJs Form" of-type="SingleLine.Text" usage="input" required="true" />
     <property name="ThemeName" display-name-key="ThemeName" description-key="Set Theme Name for SurveyJs Form" of-type="SingleLine.Text" usage="input" required="true" />
-    <property name="ReturnNoData" display-name-key="ReturnNoData" description-key="Set ReturnNoData property for SurveyJs Form" of-type="SingleLine.Text" usage="input" required="true" />
+    <property name="ReturnNoData" display-name-key="ReturnNoData" description-key="Set ReturnNoData property for SurveyJs Form (To be set as True for Form Collection Mode)" of-type="SingleLine.Text" usage="input" required="true" />
+    
+    <property name="Lookup" display-name-key="Lookup Field" description-key="Lookup field for the PCF control (Mandate when Mode=FormCollection)" of-type="Lookup.Simple" usage="bound" required="false" />
+    <property name="QueryEntity" display-name-key="Query Entity" description-key="Query Entity (Mandate when Mode=FormCollection)" of-type="SingleLine.Text" usage="input" required="false" />
+    <property name="QueryParameters" display-name-key="QueryParameters (oData Format)" description-key="Query Parameters in oData format - Always associated with the Loop record (Mandate when Mode=FormCollection)" of-type="Multiple" usage="input" required="false" />
+    <property name="FieldMapping" display-name-key="FieldMapping (JSON)" description-key="Field maping for dynamic mapping of the dropdown control (Mandate when Mode=FormCollection)" of-type="Multiple" usage="input" required="false" />
     <!--
       Property node's of-type attribute can be of-type-group attribute.
       Example:
@@ -42,6 +48,9 @@
       <resx path="strings/SurveyJsForm.1033.resx" version="1.0.0" />
       -->
     </resources>
+    <feature-usage>
+      <uses-feature name="WebAPI" required="true" />
+    </feature-usage>
     <!-- UNCOMMENT TO ENABLE THE SPECIFIED API
     <feature-usage>
       <uses-feature name="Device.captureAudio" required="true" />

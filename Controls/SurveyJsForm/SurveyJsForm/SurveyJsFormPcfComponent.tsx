@@ -93,7 +93,6 @@ export class SurveyJsFormPcfComponent extends React.Component<SurveyJsFormPcfPro
             ContrastLightPanelless: SurveyTheme.ContrastLightPanelless,
             ContrastDarkPanelless: SurveyTheme.ContrastDarkPanelless
             };
-        console.log("SurveyJsFormPcfProps: constructor called.");
         this.SurveyData = this.props.SurveyData;
         this.SurveyModel = new Model(this.props.SurveyModelData);
         this.ThemeName = this.props.ThemeName;
@@ -126,7 +125,6 @@ export class SurveyJsFormPcfComponent extends React.Component<SurveyJsFormPcfPro
     }
 
     render() {
-      console.log("Child component rendered.");
       return <Survey model={this.SurveyModel} />;
     }
 }
