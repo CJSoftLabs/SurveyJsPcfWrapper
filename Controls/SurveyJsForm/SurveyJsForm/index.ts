@@ -172,14 +172,23 @@ export class SurveyJsForm implements ComponentFramework.StandardControl<IInputs,
             this.dropdownElement.addEventListener("change", (event) => {
                 const selectedValue = (event.target as HTMLSelectElement).value;
                 if(selectedValue === "") {
-                    this.SurveyModelData = "";
-                    this.SurveyData = "";
+                    this.SurveyModelData = "{}";
+                    this.SurveyData = "{}";
                     this.SurveyJsContainer.style.display = "none";
                 }
                 else {
                     // Find the corresponding entity object from data.entities based on the selected value
                     const selectedEntity = this.OtherSurveys.entities.find((entity: any) => entity[config.ValueProperty] === selectedValue);
-                    this.SurveyModelData = selectedEntity[config.SurveyModel];
+
+                    //Change the Logo size to 50px
+                    try{
+                        var ModelData = JSON.parse(selectedEntity[config.SurveyModel]);
+                        ModelData.logoWidth = "50px";
+                        ModelData.logoHeight = "50px";
+                        this.SurveyModelData = JSON.stringify(ModelData);
+                    } catch (error) {
+                        this.SurveyModelData = selectedEntity[config.SurveyModel];
+                    }
                     this.SurveyData = selectedEntity[config.SurveyResponse];
                     this.SurveyJsContainer.style.display = "block";
                 }
