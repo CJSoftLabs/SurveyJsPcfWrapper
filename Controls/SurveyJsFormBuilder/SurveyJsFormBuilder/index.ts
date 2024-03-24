@@ -30,13 +30,14 @@ import { SurveyJsBuilderPcfProps, SurveyJsBuilderPcfComponent } from "./SurveyJs
 export class SurveyJsFormBuilder implements ComponentFramework.StandardControl<IInputs, IOutputs> {
     private notifyOutputChanged: () => void;
     private container: HTMLDivElement;
-    private jsonInput: string;
-    private autoSave: boolean;
-    private rootControl: Root;
+    private JsonInput: string;
+    private ParentTemplate: string;
+    private AutoSave: boolean;
+    private RootControl: Root;
     private oParam: SurveyJsBuilderPcfProps;
 
     onJsonValueChanged = (strJson: string): {} => {
-        this.jsonInput = strJson;
+        this.JsonInput = strJson;
         this.notifyOutputChanged();
 
         return {}; 
@@ -67,11 +68,12 @@ export class SurveyJsFormBuilder implements ComponentFramework.StandardControl<I
         this.notifyOutputChanged = notifyOutputChanged;
 
         // Add control initialization code
-        this.jsonInput = context.parameters.JsonInput.raw || "{}";
-        this.autoSave = this.ToBoolean(context.parameters.AutoSave.raw || "");
+        // this.JsonInput = context.parameters.JsonInput.raw || "{}";
+        // this.AutoSave = this.ToBoolean(context.parameters.AutoSave.raw || "");
+        // this.ParentTemplate = context.parameters.ParentTemplate.raw || "{}";
 
-        // Parse JSON and render controls
-        this.renderControls();
+        // // Parse JSON and render controls
+        // this.renderControls();
     }
 
 
@@ -82,8 +84,17 @@ export class SurveyJsFormBuilder implements ComponentFramework.StandardControl<I
     public updateView(context: ComponentFramework.Context<IInputs>): void
     {
         // Add code to update control view
-        this.jsonInput = context.parameters.JsonInput.raw || "{}";
-        this.autoSave = this.ToBoolean(context.parameters.AutoSave.raw || "");
+        this.JsonInput = context.parameters.JsonInput.raw || "{}";
+        this.AutoSave = this.ToBoolean(context.parameters.AutoSave.raw || "");
+        this.ParentTemplate = context.parameters.ParentTemplate.raw || "{}";
+        
+        const RecordId = (context.mode as any).contextInfo.entityId;
+        if((RecordId === undefined) || (RecordId === "undefined") || (RecordId === "")) {
+            if(this.JsonInput === "{}") {
+                this.JsonInput = this.ParentTemplate;
+                this.notifyOutputChanged();
+            }
+        }
         
         // Parse JSON and render controls
         this.renderControls();
@@ -105,11 +116,11 @@ export class SurveyJsFormBuilder implements ComponentFramework.StandardControl<I
     private renderControls(): void {
         console.log("Render Control triggered.");
         try {
-            this.oParam.SurveyBuilderData = JSON.parse(this.jsonInput);
+            this.oParam.SurveyBuilderData = JSON.parse(this.JsonInput);
             this.oParam.creatorOptions = {
                 showLogicTab: true,
                 showThemeTab: true,
-                isAutoSave: this.autoSave
+                isAutoSave: this.AutoSave
             }
         } catch (error) {
             console.error("Error parsing JSON:", error);
@@ -117,11 +128,11 @@ export class SurveyJsFormBuilder implements ComponentFramework.StandardControl<I
             //return;
         }
 
-        if(this.rootControl === undefined)
+        if(this.RootControl === undefined)
         {
-            this.rootControl = createRoot(this.container);
+            this.RootControl = createRoot(this.container);
         }
-        this.rootControl.render(React.createElement(
+        this.RootControl.render(React.createElement(
             SurveyJsBuilderPcfComponent,
             this.oParam
         ));
@@ -133,7 +144,7 @@ export class SurveyJsFormBuilder implements ComponentFramework.StandardControl<I
      */
     public getOutputs(): IOutputs
     {
-        return { JsonInput: this.jsonInput } as IOutputs;
+        return { JsonInput: this.JsonInput } as IOutputs;
     }
 
     /**
