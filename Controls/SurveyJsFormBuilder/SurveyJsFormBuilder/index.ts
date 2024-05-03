@@ -35,6 +35,7 @@ export class SurveyJsFormBuilder implements ComponentFramework.StandardControl<I
     private AutoSave: boolean;
     private RootControl: Root;
     private oParam: SurveyJsBuilderPcfProps;
+    private ExternalFiles: any;
 
     onJsonValueChanged = (strJson: string): {} => {
         this.JsonInput = strJson;
@@ -54,6 +55,67 @@ export class SurveyJsFormBuilder implements ComponentFramework.StandardControl<I
         };
     }
 
+    initializeExternalScripts() {
+        if (typeof window.ClassicEditor === 'undefined') {
+            var script_CkEditor = document.getElementById('script_CkEditor');
+            if (!script_CkEditor) {
+                // CKEditor script is not loaded, load it dynamically
+                var script = document.createElement('script');
+                script.id = "script_CkEditor";
+                script.type = 'text/javascript';
+                script.async = false;
+                script.src = this.ExternalFiles.ckeditorjs || "";//'https://cdn.ckeditor.com/ckeditor5/41.2.1/classic/ckeditor.js'; // Replace with the actual path to CKEditor script
+                script.onload = this.initializeCKEditor; // Initialize CKEditor after script is loaded
+                document.head.appendChild(script); // Append the script element to the document
+            }
+        }
+        
+        if (typeof window.Quill === 'undefined') {
+            var css_QuillEditor = document.getElementById('css_QuillEditor');
+            if (!css_QuillEditor) {
+                // QuillEditor script is not loaded, load it dynamically
+                var css = document.createElement('link');
+                css.id = "css_QuillEditor";
+                //css.type = 'text/javascript';
+                css.rel = "stylesheet";
+                css.href = this.ExternalFiles.quillcss || "";//'https://cdn.jsdelivr.net/npm/quill@2.0.0-rc.5/dist/quill.snow.css'; // Replace with the actual path to QuillEditor script
+                document.head.appendChild(css); // Append the script element to the document
+            }
+
+            var script_QuillEditor = document.getElementById('script_QuillEditor');
+            if (!script_QuillEditor) {
+                // QuillEditor script is not loaded, load it dynamically
+                var script1 = document.createElement('script');
+                script1.id = "script_QuillEditor";
+                script1.type = 'text/javascript';
+                script1.async = false;
+                script1.src = this.ExternalFiles.quilljs || "";//'https://cdn.jsdelivr.net/npm/quill@2.0.0-rc.5/dist/quill.js'; // Replace with the actual path to QuillEditor script
+                script1.onload = this.initializeQuillEditor; // Initialize CKEditor after script is loaded
+                document.head.appendChild(script1); // Append the script element to the document
+            }
+        }
+    }
+
+    initializeCKEditor() {
+        // Check if ClassicEditor is available
+        if (typeof window.ClassicEditor !== 'undefined') {
+            // Now you can use ClassicEditor
+            console.log("CKEditor loaded successfully!");
+        } else {
+            console.error("CKEditor failed to load!");
+        }
+    }
+
+    initializeQuillEditor() {
+        // Check if QuillEditor is available
+        if (typeof window.ClassicEditor !== 'undefined') {
+            // Now you can use QuillEditor
+            console.log("QuillEditor loaded successfully!");
+        } else {
+            console.error("QuillEditor failed to load!");
+        }
+    }
+
     /**
      * Used to initialize the control instance. Controls can kick off remote server calls and other initialization actions here.
      * Data-set values are not initialized here, use updateView.
@@ -66,6 +128,8 @@ export class SurveyJsFormBuilder implements ComponentFramework.StandardControl<I
     {
         this.container = container;
         this.notifyOutputChanged = notifyOutputChanged;
+        this.ExternalFiles = JSON.parse(context.parameters.ExternalFiles.raw || "{}");
+        this.initializeExternalScripts();
 
         // Add control initialization code
         // this.JsonInput = context.parameters.JsonInput.raw || "{}";
@@ -89,7 +153,7 @@ export class SurveyJsFormBuilder implements ComponentFramework.StandardControl<I
         this.ParentTemplate = context.parameters.ParentTemplate.raw || "{}";
         
         const RecordId = (context.mode as any).contextInfo.entityId;
-        if((RecordId === undefined) || (RecordId === "undefined") || (RecordId === "")) {
+        if((RecordId === undefined) || (RecordId === null) || (RecordId === "undefined") || (RecordId === "")) {
             if(this.JsonInput === "{}") {
                 this.JsonInput = this.ParentTemplate;
                 this.notifyOutputChanged();

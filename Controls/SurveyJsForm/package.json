@@ -17,13 +17,11 @@
     "refreshTypes": "pcf-scripts refreshTypes"
   },
   "dependencies": {
-    "@ckeditor/ckeditor5-build-classic": "^41.2.1",
-    "@ckeditor/ckeditor5-react": "^6.2.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "react-quill": "^2.0.0",
-    "survey-core": "^1.9.133",
-    "survey-react-ui": "^1.9.133"
+    "survey-core": "^1.10.2",
+    "survey-pdf": "^1.10.2",
+    "survey-react-ui": "^1.10.2"
   },
   "devDependencies": {
     "@microsoft/eslint-plugin-power-apps": "^0.2.6",
@@ -33,7 +31,7 @@
     "@types/react-dom": "^18.2.19",
     "@typescript-eslint/eslint-plugin": "^5.39.0",
     "@typescript-eslint/parser": "^5.39.0",
-    "eslint": "^8.24.0",
+    "eslint": "^8.57.0",
     "eslint-plugin-import": "^2.26.0",
     "eslint-plugin-node": "^11.1.0",
     "eslint-plugin-promise": "^6.0.1",

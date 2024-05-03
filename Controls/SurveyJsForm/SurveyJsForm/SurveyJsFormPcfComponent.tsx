@@ -29,6 +29,7 @@ import { Survey } from 'survey-react-ui';
 import * as SurveyTheme from 'survey-core/themes';
 import { RegisterQuillRteToolboxItem, RegisterQuillRteComponent } from './QuillRteComponent';
 import { RegisterCkEditorRteToolboxItem, RegisterCkEditorRteComponent } from './CkEditorRteComponent';
+import { HorizontalAlign, SurveyPDF, VerticalAlign } from "survey-pdf";
 
 RegisterQuillRteToolboxItem();
 RegisterQuillRteComponent();
@@ -41,14 +42,16 @@ export interface SurveyJsFormPcfProps {
     SurveyData: string;
     onValueChanged: (strJson: string, bCompleted: boolean) => {};
     ReadOnly: boolean;
+    EnableSaveAsPdf: boolean;
 }
 
 export class SurveyJsFormPcfComponent extends React.Component<SurveyJsFormPcfProps> {
     SurveyModel: Model;
     SurveyData: string;
+    //SurveyPdfModel: JSON;
     ThemeName: string;
     ThemeObjects: any;
-
+    
     constructor(props: SurveyJsFormPcfProps) {
         super(props);
         this.ThemeObjects = {
@@ -98,6 +101,7 @@ export class SurveyJsFormPcfComponent extends React.Component<SurveyJsFormPcfPro
         this.ThemeName = this.props.ThemeName;
         this.SurveyModel.data = this.SurveyData;
         this.SurveyModel.applyTheme(this.GetTheme(this.ThemeName));
+        //this.SurveyPdfModel = JSON.parse(this.props.SurveyModelData).Pages;
 
         if(this.props.ReadOnly) {
             this.SurveyModel.mode = "display";
@@ -118,6 +122,94 @@ export class SurveyJsFormPcfComponent extends React.Component<SurveyJsFormPcfPro
                 this.props.onValueChanged(JSON.stringify(this.SurveyData), false);
             });
         }
+
+        if(this.props.EnableSaveAsPdf) {
+            this.SurveyModel.addNavigationItem({
+                id: "survey_save_as_file", title: "Save as PDF", action: () => { this.SaveSurveyToPdf("surveyResult.pdf"); }
+            });
+        }
+    }
+
+    SaveSurveyToPdf(filename: any) {
+        this.CreateSurveyPdfModel().save(filename);
+    }
+
+    CreateSurveyPdfModel() {
+    
+        let pdfWidth = !!this.SurveyModel && this.SurveyModel.pdfWidth ? this.SurveyModel.pdfWidth : 210;
+        let pdfHeight = !!this.SurveyModel && this.SurveyModel.pdfHeight ? this.SurveyModel.pdfHeight : 297;
+        let options = {
+            fontSize: 14,
+            margins: {
+                left: 10,
+                right: 10,
+                top: 25,
+                bot: 10
+            },            
+            format: [pdfWidth, pdfHeight]
+        };
+        const SurveyPdfModelData = "{\"pages\":" + JSON.stringify(this.SurveyModel.pages) + "}";
+        const surveyPDF = new SurveyPDF(SurveyPdfModelData, options);
+        surveyPDF.haveCommercialLicense=true;
+        surveyPDF.title = this.SurveyModel.title;
+        surveyPDF.description = this.SurveyModel.description;
+        surveyPDF.showTitle = false;
+    
+        // Adds the logo to the header area
+        surveyPDF.onRenderHeader.add(async function (_, canvas) {
+            if((_.title !== undefined) && (_.title !== "undefined") && (_.title !== null) && (_.title !== "")) {
+                canvas.drawText({
+                    text: _.title,
+                    fontSize: 16,
+                    isBold: true,
+                    horizontalAlign: HorizontalAlign.Left,
+                    verticalAlign: VerticalAlign.Top,
+                    margins: {
+                        right: 12,
+                        top: 10,
+                        bot: 12,
+                        left: 12
+                    }
+                });
+            }
+
+            if((_.description !== undefined) && (_.description !== "undefined") && (_.description !== null) && (_.description !== "")) {
+                canvas.drawText({
+                    text: _.description,
+                    fontSize: 12,
+                    horizontalAlign: HorizontalAlign.Left,
+                    verticalAlign: VerticalAlign.Top,
+                    margins: {
+                        right: 12,
+                        top: 40,
+                        bot: 12,
+                        left: 12
+                    }
+                });
+            }
+        });
+
+        // Adds custom text and page information to the footer area
+        surveyPDF.onRenderFooter.add((_, canvas) => {
+            canvas.drawText({
+                text: "Page " + canvas.pageNumber + " of " + canvas.pageCount,
+                fontSize: 10,
+                horizontalAlign: HorizontalAlign.Center,
+                verticalAlign: VerticalAlign.Bottom,
+                margins: {
+                    right: 12,
+                    top: 12,
+                    bot: 12,
+                    left: 12
+                }
+            });
+        });
+        
+        if (this.SurveyModel) {
+            surveyPDF.data = this.SurveyModel.data;
+        }
+        
+        return surveyPDF;
     }
 
     GetTheme(ThemeName: string) {

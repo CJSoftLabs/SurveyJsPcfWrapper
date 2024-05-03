@@ -39,6 +39,7 @@ export class SurveyJsForm implements ComponentFramework.StandardControl<IInputs,
     private rootControl: Root;
     private oParam: SurveyJsFormPcfProps;
     private Completed: boolean;
+    private SaveAsPdf: boolean;
     private IsForm: boolean;
     private IsFormCollection: boolean;
 
@@ -52,6 +53,7 @@ export class SurveyJsForm implements ComponentFramework.StandardControl<IInputs,
     private dropdownElement: HTMLSelectElement;
     private SurveyJsContainer: any;
     private OtherSurveys: any;
+    private ExternalFiles: any;
 
 
     onJsonValueChanged = (strJson: string, bCompleted: boolean): {} => {
@@ -78,14 +80,77 @@ export class SurveyJsForm implements ComponentFramework.StandardControl<IInputs,
 
         this.oParam = {
             SurveyModelData: JSON.parse("{}"),
-            ThemeName: "Default",
             SurveyData: JSON.parse("{}"),
+            //SurveyPdfModelData: JSON.parse("{}"),
+            ThemeName: "Default",
             ReadOnly: false,
+            EnableSaveAsPdf: false,
             onValueChanged: this.onJsonValueChanged
         };
         this.OtherSurveys = {
             "entities": []
         };
+    }
+
+    initializeExternalScripts() {
+        if (typeof window.ClassicEditor === 'undefined') {
+            var script_CkEditor = document.getElementById('script_CkEditor');
+            if (!script_CkEditor) {
+                // CKEditor script is not loaded, load it dynamically
+                var script = document.createElement('script');
+                script.id = "script_CkEditor";
+                script.type = 'text/javascript';
+                script.async = false;
+                script.src = this.ExternalFiles.ckeditorjs || "";//'https://cdn.ckeditor.com/ckeditor5/41.2.1/classic/ckeditor.js'; // Replace with the actual path to CKEditor script
+                script.onload = this.initializeCKEditor; // Initialize CKEditor after script is loaded
+                document.head.appendChild(script); // Append the script element to the document
+            }
+        }
+        
+        if (typeof window.Quill === 'undefined') {
+            var css_QuillEditor = document.getElementById('css_QuillEditor');
+            if (!css_QuillEditor) {
+                // QuillEditor script is not loaded, load it dynamically
+                var css = document.createElement('link');
+                css.id = "css_QuillEditor";
+                //css.type = 'text/javascript';
+                css.rel = "stylesheet";
+                css.href = this.ExternalFiles.quillcss || "";'https://cdn.jsdelivr.net/npm/quill@2.0.0-rc.5/dist/quill.snow.css'; // Replace with the actual path to QuillEditor script
+                document.head.appendChild(css); // Append the script element to the document
+            }
+
+            var script_QuillEditor = document.getElementById('script_QuillEditor');
+            if (!script_QuillEditor) {
+                // QuillEditor script is not loaded, load it dynamically
+                var script1 = document.createElement('script');
+                script1.id = "script_QuillEditor";
+                script1.type = 'text/javascript';
+                script1.async = false;
+                script1.src = this.ExternalFiles.quilljs || "";//'https://cdn.jsdelivr.net/npm/quill@2.0.0-rc.5/dist/quill.js'; // Replace with the actual path to QuillEditor script
+                script1.onload = this.initializeQuillEditor; // Initialize CKEditor after script is loaded
+                document.head.appendChild(script1); // Append the script element to the document
+            }
+        }
+    }
+
+    initializeCKEditor() {
+        // Check if ClassicEditor is available
+        if (typeof window.ClassicEditor !== 'undefined') {
+            // Now you can use ClassicEditor
+            console.log("CKEditor loaded successfully!");
+        } else {
+            console.error("CKEditor failed to load!");
+        }
+    }
+
+    initializeQuillEditor() {
+        // Check if QuillEditor is available
+        if (typeof window.ClassicEditor !== 'undefined') {
+            // Now you can use QuillEditor
+            console.log("QuillEditor loaded successfully!");
+        } else {
+            console.error("QuillEditor failed to load!");
+        }
     }
 
     /**
@@ -102,6 +167,23 @@ export class SurveyJsForm implements ComponentFramework.StandardControl<IInputs,
         this.context = context;
         this.notifyOutputChanged = notifyOutputChanged;
         this.RecordId = (context.mode as any).contextInfo.entityId;
+        
+        this.ReadOnly = this.ToBoolean(context.parameters.ReadOnly.raw || "");
+        this.ThemeName = context.parameters.ThemeName.raw || "Default";
+        this.GetMode(context.parameters.Mode.raw || "");
+        this.ExternalFiles = JSON.parse(context.parameters.ExternalFiles.raw || "{}");
+        this.initializeExternalScripts();
+
+        if(this.IsForm) {
+            this.SurveyModelData = context.parameters.SurveyModelData.raw || "{}";
+            this.SurveyData = context.parameters.SurveyData.raw || "{}";
+            this.ReturnNoData = this.ToBoolean(context.parameters.ReturnNoData.raw || "");
+            //this.Completed = this.ToBoolean((context.parameters.Completed.raw || "No")); //Set the default value as 'No' for TwoOption field
+            this.SaveAsPdf = this.ToBoolean(context.parameters.SaveAsPdf.raw || "false");
+        
+            // Parse JSON and render controls
+            this.RenderControls();
+        }
     }
 
 
@@ -136,6 +218,9 @@ export class SurveyJsForm implements ComponentFramework.StandardControl<IInputs,
             this.SurveyModelData = context.parameters.SurveyModelData.raw || "{}";
             this.SurveyData = context.parameters.SurveyData.raw || "{}";
             this.ReturnNoData = this.ToBoolean(context.parameters.ReturnNoData.raw || "");
+            //this.Completed = context.parameters.Completed.raw || "No"; //Set the default value as 'No' for TwoOption field
+            //this.Completed = this.ToBoolean((context.parameters.Completed.raw || "No")); //Set the default value as 'No' for TwoOption field
+            this.SaveAsPdf = this.ToBoolean(context.parameters.SaveAsPdf.raw || "false");
         
             // Parse JSON and render controls
             this.RenderControls();
@@ -149,7 +234,8 @@ export class SurveyJsForm implements ComponentFramework.StandardControl<IInputs,
         })
         .catch((error: any) => {
             this.OtherSurveys = { "entities": [] };
-            console.log("Error fetching related records:", error);
+            console.log("Error fetching related records: ", error);
+            alert("Error fetching related records: " + JSON.stringify(error));
         });
     }
 
@@ -206,24 +292,35 @@ export class SurveyJsForm implements ComponentFramework.StandardControl<IInputs,
 
             this.OtherSurveys.entities.forEach((entity: any) => {
                 if (entity[config.ValueProperty] !== this.RecordId) {
-                    let dynamicText = displayPattern;
-                    for (const key in config) {
-                        if (Object.prototype.hasOwnProperty.call(config, key)) {
-                            dynamicText = dynamicText.replace(`{${key}}`, entity[config[key]]);
-                        }
+                    var AllowItemToAdd = false;
+                    //if((entity[config.ApplyFilterProperty] === undefined) || (this.ToBoolean(entity[config.ApplyFilterProperty] || "") && (entity[config.FilterIdProperty] === this.LookupId))) {
+                    if(this.ToBoolean(config.ApplyFilterProperty || "") === false) {
+                        AllowItemToAdd=true;
+                    }
+                    else if(entity[config.FilterIdProperty] === this.LookupId) {
+                        AllowItemToAdd=true;
                     }
 
-                    dynamicText = dynamicText.replace("LookupId", this.LookupId);
-                    dynamicText = dynamicText.replace("LookupName", this.LookupName);
-                    dynamicText = dynamicText.replace("LookupType", this.LookupType);
+                    if(AllowItemToAdd){
+                        let dynamicText = displayPattern;
+                        for (const key in config) {
+                            if (Object.prototype.hasOwnProperty.call(config, key)) {
+                                dynamicText = dynamicText.replace(`{${key}}`, entity[config[key]]);
+                            }
+                        }
 
-                    // Create an option element for each entity
-                    const option = document.createElement('option');
-                    // Set the text and value of the option element
-                    option.text = dynamicText;
-                    option.value = entity[config.ValueProperty];
-                    // Append the option element to the dropdown
-                    this.dropdownElement.appendChild(option);
+                        dynamicText = dynamicText.replace("LookupId", this.LookupId);
+                        dynamicText = dynamicText.replace("LookupName", this.LookupName);
+                        dynamicText = dynamicText.replace("LookupType", this.LookupType);
+
+                        // Create an option element for each entity
+                        const option = document.createElement('option');
+                        // Set the text and value of the option element
+                        option.text = dynamicText;
+                        option.value = entity[config.ValueProperty];
+                        // Append the option element to the dropdown
+                        this.dropdownElement.appendChild(option);
+                    }
                 }
             });
 
@@ -237,9 +334,12 @@ export class SurveyJsForm implements ComponentFramework.StandardControl<IInputs,
     RenderSurveyControl() {
         try {
             this.oParam.SurveyModelData = JSON.parse(this.SurveyModelData);
+            //this.oParam.SurveyPdfModelData = JSON.parse(this.SurveyModelData).pages;
+            //this.oParam.SurveyPdfModelData = "{\"pages\":" + JSON.stringify(JSON.parse(this.SurveyModelData).pages) + "}";//JSON.parse(this.SurveyModelData).pages;
         } catch (error) {
             console.log("Error parsing JSON:", error);
             this.oParam.SurveyModelData = "{}";
+            //this.oParam.SurveyPdfModelData = "{}";
         }
         try {
             this.oParam.SurveyData = JSON.parse(this.SurveyData);
@@ -249,6 +349,7 @@ export class SurveyJsForm implements ComponentFramework.StandardControl<IInputs,
         }
         this.oParam.ReadOnly = this.ReadOnly;
         this.oParam.ThemeName = this.ThemeName;
+        this.oParam.EnableSaveAsPdf = this.SaveAsPdf;
 
         if(this.SurveyJsContainer === undefined) {            
             this.SurveyJsContainer = document.createElement('div');
@@ -262,6 +363,7 @@ export class SurveyJsForm implements ComponentFramework.StandardControl<IInputs,
             );
         } catch (error) {
             console.log("Error Loading the SurveyJS component: ", error);
+            alert("Error Loading the SurveyJS component: " + JSON.stringify(error));
         }
     }
 
@@ -292,9 +394,12 @@ export class SurveyJsForm implements ComponentFramework.StandardControl<IInputs,
     private RenderControls(): void {
         try {
             this.oParam.SurveyModelData = JSON.parse(this.SurveyModelData);
+            //this.oParam.SurveyPdfModelData = JSON.stringify(JSON.parse(this.SurveyModelData).pages);//JSON.parse(this.SurveyModelData).pages;
+            //this.oParam.SurveyPdfModelData = "{\"pages\":" + JSON.stringify(JSON.parse(this.SurveyModelData).pages) + "}";//JSON.parse(this.SurveyModelData).pages;
         } catch (error) {
             console.log("Error parsing JSON:", error);
             this.oParam.SurveyModelData = "{}";
+            //this.oParam.SurveyPdfModelData = "{}";
         }
         try {
             this.oParam.SurveyData = JSON.parse(this.SurveyData);
@@ -304,6 +409,7 @@ export class SurveyJsForm implements ComponentFramework.StandardControl<IInputs,
         }
         this.oParam.ReadOnly = this.ReadOnly;
         this.oParam.ThemeName = this.ThemeName;
+        this.oParam.EnableSaveAsPdf = this.SaveAsPdf;
 
         if(this.rootControl === undefined)
         {

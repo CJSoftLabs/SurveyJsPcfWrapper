@@ -17,13 +17,10 @@
     "refreshTypes": "pcf-scripts refreshTypes"
   },
   "dependencies": {
-    "@ckeditor/ckeditor5-build-classic": "^41.2.1",
-    "@ckeditor/ckeditor5-react": "^6.2.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "react-quill": "^2.0.0",
-    "survey-creator": "^1.9.135",
-    "survey-creator-react": "^1.9.133"
+    "survey-creator": "^1.10.2",
+    "survey-creator-react": "^1.10.2"
   },
   "devDependencies": {
     "@microsoft/eslint-plugin-power-apps": "^0.2.6",
