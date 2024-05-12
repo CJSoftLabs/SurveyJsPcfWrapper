@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <manifest>
-  <control namespace="CJSoftLabs" constructor="SurveyJsFormCollection" version="1.0.3" display-name-key="SurveyJsFormCollection" description-key="SurveyJsFormCollection description" control-type="standard" >
+  <control namespace="CJSoftLabs" constructor="SurveyJsFormCollection" version="1.0.7" display-name-key="SurveyJsFormCollection" description-key="SurveyJsFormCollection description" control-type="standard" >
     <!--external-service-usage node declares whether this 3rd party PCF control is using external service or not, if yes, this control will be considered as premium and please also add the external domain it is using.
     If it is not using any external service, please set the enabled="false" and DO NOT add any domain below. The "enabled" will be false by default.
     Example1:
@@ -18,12 +18,13 @@
       -->
     </external-service-usage>
     <!-- property node identifies a specific, configurable piece of data that the control expects from CDS -->
-    <property name="Lookup" display-name-key="Lookup Field" description-key="Lookup field for the PCF control" of-type="Lookup.Simple" usage="bound" required="true" />
-    <property name="ReadOnly" display-name-key="ReadOnly" description-key="Set ReadOnly property for SurveyJs Form" of-type="SingleLine.Text" usage="input" required="true" />
+    <property name="ReadOnly" display-name-key="ReadOnly" description-key="Set ReadOnly property for SurveyJs Form - True/False" of-type="SingleLine.Text" usage="input" required="true" />
     <property name="ThemeName" display-name-key="ThemeName" description-key="Set Theme Name for SurveyJs Form" of-type="SingleLine.Text" usage="input" required="true" />
+    <property name="Lookup" display-name-key="Lookup Field" description-key="Lookup field for the PCF control" of-type="Lookup.Simple" usage="bound" required="true" />
     <property name="QueryEntity" display-name-key="Query Entity" description-key="Query Entity" of-type="SingleLine.Text" usage="input" required="true" />
     <property name="QueryParameters" display-name-key="QueryParameters (oData Format)" description-key="Query Parameters in oData format - Always associated with the Loop record" of-type="Multiple" usage="input" required="true" />
     <property name="FieldMapping" display-name-key="FieldMapping (JSON)" description-key="Field maping for dynamic mapping of the dropdown control" of-type="Multiple" usage="input" required="true" />
+  	<property name="ExternalFiles" display-name-key="ExternalFiles" description-key="External Files used in SurveyJs Builder" of-type="Multiple" usage="input" required="true" />
     <!--
       Property node's of-type attribute can be of-type-group attribute.
       Example:

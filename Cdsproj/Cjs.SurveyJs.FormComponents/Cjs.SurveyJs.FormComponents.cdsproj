@@ -78,6 +78,7 @@ SOFTWARE.
   <ItemGroup>
     <ProjectReference Include="..\..\Controls\SurveyJsFormBuilder\SurveyJsFormBuilder.pcfproj" />
     <ProjectReference Include="..\..\Controls\SurveyJsForm\SurveyJsForm.pcfproj" />
+    <ProjectReference Include="..\..\Controls\SurveyJsFormCollection\SurveyJsFormCollection.pcfproj" />
   </ItemGroup>
 
   <Import Project="$(MSBuildToolsPath)\Microsoft.Common.targets" />

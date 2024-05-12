@@ -30,7 +30,6 @@ import { SurveyJsFormPcfComponent, SurveyJsFormPcfProps } from "./SurveyJsFormPc
 export class SurveyJsForm implements ComponentFramework.StandardControl<IInputs, IOutputs> {
 	private notifyOutputChanged: () => void;
     private container: HTMLDivElement;
-    private context: ComponentFramework.Context<IInputs>;
     private SurveyModelData: string;
     private ReadOnly: boolean;
     private ReturnNoData: boolean;
@@ -40,21 +39,7 @@ export class SurveyJsForm implements ComponentFramework.StandardControl<IInputs,
     private oParam: SurveyJsFormPcfProps;
     private Completed: boolean;
     private SaveAsPdf: boolean;
-    private IsForm: boolean;
-    private IsFormCollection: boolean;
-
-    private RecordId: any;
-    private LookupId: any;
-    private LookupName: any;
-    private LookupType: any;
-    private QueryParameters: string;
-    private QueryEntity: string;
-    private FieldMapping: string;
-    private dropdownElement: HTMLSelectElement;
-    private SurveyJsContainer: any;
-    private OtherSurveys: any;
     private ExternalFiles: any;
-
 
     onJsonValueChanged = (strJson: string, bCompleted: boolean): {} => {
         this.SurveyData = strJson;
@@ -73,8 +58,6 @@ export class SurveyJsForm implements ComponentFramework.StandardControl<IInputs,
      */
     constructor()
     {
-        this.IsForm = false;
-        this.IsFormCollection = false;
         this.SurveyData = "{}";
         this.SurveyModelData = "{}";
 
@@ -86,9 +69,6 @@ export class SurveyJsForm implements ComponentFramework.StandardControl<IInputs,
             ReadOnly: false,
             EnableSaveAsPdf: false,
             onValueChanged: this.onJsonValueChanged
-        };
-        this.OtherSurveys = {
-            "entities": []
         };
     }
 
@@ -115,7 +95,7 @@ export class SurveyJsForm implements ComponentFramework.StandardControl<IInputs,
                 css.id = "css_QuillEditor";
                 //css.type = 'text/javascript';
                 css.rel = "stylesheet";
-                css.href = this.ExternalFiles.quillcss || "";'https://cdn.jsdelivr.net/npm/quill@2.0.0-rc.5/dist/quill.snow.css'; // Replace with the actual path to QuillEditor script
+                css.href = this.ExternalFiles.quillcss || "";//'https://cdn.jsdelivr.net/npm/quill@2.0.0-rc.5/dist/quill.snow.css'; // Replace with the actual path to QuillEditor script
                 document.head.appendChild(css); // Append the script element to the document
             }
 
@@ -164,28 +144,21 @@ export class SurveyJsForm implements ComponentFramework.StandardControl<IInputs,
     public init(context: ComponentFramework.Context<IInputs>, notifyOutputChanged: () => void, state: ComponentFramework.Dictionary, container:HTMLDivElement): void
     {
         this.container = container;
-        this.context = context;
-        this.notifyOutputChanged = notifyOutputChanged;
-        this.RecordId = (context.mode as any).contextInfo.entityId;
-        
+        this.notifyOutputChanged = notifyOutputChanged;        
         this.ReadOnly = this.ToBoolean(context.parameters.ReadOnly.raw || "");
         this.ThemeName = context.parameters.ThemeName.raw || "Default";
-        this.GetMode(context.parameters.Mode.raw || "");
         this.ExternalFiles = JSON.parse(context.parameters.ExternalFiles.raw || "{}");
         this.initializeExternalScripts();
 
-        if(this.IsForm) {
-            this.SurveyModelData = context.parameters.SurveyModelData.raw || "{}";
-            this.SurveyData = context.parameters.SurveyData.raw || "{}";
-            this.ReturnNoData = this.ToBoolean(context.parameters.ReturnNoData.raw || "");
-            //this.Completed = this.ToBoolean((context.parameters.Completed.raw || "No")); //Set the default value as 'No' for TwoOption field
-            this.SaveAsPdf = this.ToBoolean(context.parameters.SaveAsPdf.raw || "false");
-        
-            // Parse JSON and render controls
-            this.RenderControls();
-        }
+        this.SurveyModelData = context.parameters.SurveyModelData.raw || "{}";
+        this.SurveyData = context.parameters.SurveyData.raw || "{}";
+        this.ReturnNoData = this.ToBoolean(context.parameters.ReturnNoData.raw || "");
+        //this.Completed = this.ToBoolean((context.parameters.Completed.raw || "No")); //Set the default value as 'No' for TwoOption field
+        this.SaveAsPdf = this.ToBoolean(context.parameters.SaveAsPdf.raw || "false");
+    
+        // Parse JSON and render controls
+        this.RenderControls();
     }
-
 
     /**
      * Called when any value in the property bag has changed. This includes field values, data-sets, global values such as container height and width, offline status, control metadata values such as label, visible, etc.
@@ -196,186 +169,16 @@ export class SurveyJsForm implements ComponentFramework.StandardControl<IInputs,
         // Add code to update control view
         this.ReadOnly = this.ToBoolean(context.parameters.ReadOnly.raw || "");
         this.ThemeName = context.parameters.ThemeName.raw || "Default";
-        this.GetMode(context.parameters.Mode.raw || "");
 
-        if(this.IsFormCollection) {
-            const Lookup = context.parameters.Lookup.raw;
-            this.LookupId = Lookup[0].id;
-            this.LookupType = Lookup[0].entityType;
-            this.LookupName = Lookup[0].name;
-
-            this.QueryParameters = (context.parameters.QueryParameters.raw || "").replace("{0}", this.LookupId);
-            this.QueryEntity = context.parameters.QueryEntity.raw || "";
-            this.FieldMapping = context.parameters.FieldMapping.raw || "";
-            
-            this.SurveyData = "{}";
-            this.SurveyModelData = "{}";
-
-            //Retrieve the related records.
-            this.LoadRelatedRecords();
-        }
-        else if(this.IsForm) {
-            this.SurveyModelData = context.parameters.SurveyModelData.raw || "{}";
-            this.SurveyData = context.parameters.SurveyData.raw || "{}";
-            this.ReturnNoData = this.ToBoolean(context.parameters.ReturnNoData.raw || "");
-            //this.Completed = context.parameters.Completed.raw || "No"; //Set the default value as 'No' for TwoOption field
-            //this.Completed = this.ToBoolean((context.parameters.Completed.raw || "No")); //Set the default value as 'No' for TwoOption field
-            this.SaveAsPdf = this.ToBoolean(context.parameters.SaveAsPdf.raw || "false");
-        
-            // Parse JSON and render controls
-            this.RenderControls();
-        }
-    }
-
-    LoadRelatedRecords() {
-        this.context.webAPI.retrieveMultipleRecords(this.QueryEntity, this.QueryParameters).then((response: any) => {
-            this.OtherSurveys = response;
-            this.RenderFormCollectionControls();
-        })
-        .catch((error: any) => {
-            this.OtherSurveys = { "entities": [] };
-            console.log("Error fetching related records: ", error);
-            alert("Error fetching related records: " + JSON.stringify(error));
-        });
-    }
-
-    private RenderFormCollectionControls() : void {
-        if(this.dropdownElement === undefined) {
-            const DropdownContainer = document.createElement('div');
-            DropdownContainer.className = "column-container";
-            const config = JSON.parse(this.FieldMapping);
-            const displayPattern = config.DisplayPattern;
-
-            const LabelContainer = document.createElement('div');
-            const label = document.createElement("label");
-            label.innerText = config.LabelText;
-            LabelContainer.appendChild(label);
-            LabelContainer.style.width = "30%";
-
-            const SelectContainer = document.createElement('div');
-            this.dropdownElement = document.createElement("select");
-            this.dropdownElement.style.width = "100%";
-            this.dropdownElement.addEventListener("change", (event) => {
-                const selectedValue = (event.target as HTMLSelectElement).value;
-                if(selectedValue === "") {
-                    this.SurveyModelData = "{}";
-                    this.SurveyData = "{}";
-                    this.SurveyJsContainer.style.display = "none";
-                }
-                else {
-                    // Find the corresponding entity object from data.entities based on the selected value
-                    const selectedEntity = this.OtherSurveys.entities.find((entity: any) => entity[config.ValueProperty] === selectedValue);
-
-                    //Change the Logo size to 50px
-                    try{
-                        var ModelData = JSON.parse(selectedEntity[config.SurveyModel]);
-                        ModelData.logoWidth = "50px";
-                        ModelData.logoHeight = "50px";
-                        this.SurveyModelData = JSON.stringify(ModelData);
-                    } catch (error) {
-                        this.SurveyModelData = selectedEntity[config.SurveyModel];
-                    }
-                    this.SurveyData = selectedEntity[config.SurveyResponse];
-                    this.SurveyJsContainer.style.display = "block";
-                }
-                this.RenderSurveyControl();
-            });
-            SelectContainer.appendChild(this.dropdownElement);
-            
-            // Create a default option element
-            const option = document.createElement('option');
-            // Set the text and value of the option element
-            option.text = config.DefaultText;
-            option.value = "";
-            // Append the option element to the dropdown
-            this.dropdownElement.appendChild(option);
-
-            this.OtherSurveys.entities.forEach((entity: any) => {
-                if (entity[config.ValueProperty] !== this.RecordId) {
-                    var AllowItemToAdd = false;
-                    //if((entity[config.ApplyFilterProperty] === undefined) || (this.ToBoolean(entity[config.ApplyFilterProperty] || "") && (entity[config.FilterIdProperty] === this.LookupId))) {
-                    if(this.ToBoolean(config.ApplyFilterProperty || "") === false) {
-                        AllowItemToAdd=true;
-                    }
-                    else if(entity[config.FilterIdProperty] === this.LookupId) {
-                        AllowItemToAdd=true;
-                    }
-
-                    if(AllowItemToAdd){
-                        let dynamicText = displayPattern;
-                        for (const key in config) {
-                            if (Object.prototype.hasOwnProperty.call(config, key)) {
-                                dynamicText = dynamicText.replace(`{${key}}`, entity[config[key]]);
-                            }
-                        }
-
-                        dynamicText = dynamicText.replace("LookupId", this.LookupId);
-                        dynamicText = dynamicText.replace("LookupName", this.LookupName);
-                        dynamicText = dynamicText.replace("LookupType", this.LookupType);
-
-                        // Create an option element for each entity
-                        const option = document.createElement('option');
-                        // Set the text and value of the option element
-                        option.text = dynamicText;
-                        option.value = entity[config.ValueProperty];
-                        // Append the option element to the dropdown
-                        this.dropdownElement.appendChild(option);
-                    }
-                }
-            });
-
-            DropdownContainer.appendChild(LabelContainer);
-            DropdownContainer.appendChild(SelectContainer);
-            this.container.appendChild(DropdownContainer);
-            this.RenderSurveyControl();
-        }
-    }
-
-    RenderSurveyControl() {
-        try {
-            this.oParam.SurveyModelData = JSON.parse(this.SurveyModelData);
-            //this.oParam.SurveyPdfModelData = JSON.parse(this.SurveyModelData).pages;
-            //this.oParam.SurveyPdfModelData = "{\"pages\":" + JSON.stringify(JSON.parse(this.SurveyModelData).pages) + "}";//JSON.parse(this.SurveyModelData).pages;
-        } catch (error) {
-            console.log("Error parsing JSON:", error);
-            this.oParam.SurveyModelData = "{}";
-            //this.oParam.SurveyPdfModelData = "{}";
-        }
-        try {
-            this.oParam.SurveyData = JSON.parse(this.SurveyData);
-        } catch (error) {
-            console.log("Error parsing JSON:", error);
-            this.oParam.SurveyData = "{}";
-        }
-        this.oParam.ReadOnly = this.ReadOnly;
-        this.oParam.ThemeName = this.ThemeName;
-        this.oParam.EnableSaveAsPdf = this.SaveAsPdf;
-
-        if(this.SurveyJsContainer === undefined) {            
-            this.SurveyJsContainer = document.createElement('div');
-            this.SurveyJsContainer.style.display = "none";
-            this.container.appendChild(this.SurveyJsContainer);
-        }
-        try{
-            this.rootControl = createRoot(this.SurveyJsContainer);
-            this.rootControl.render(
-                React.createElement(SurveyJsFormPcfComponent, this.oParam)
-            );
-        } catch (error) {
-            console.log("Error Loading the SurveyJS component: ", error);
-            alert("Error Loading the SurveyJS component: " + JSON.stringify(error));
-        }
-    }
-
-    private GetMode(strInput: string) {
-        switch(strInput.toLowerCase().trim()) {
-            case "form":
-                this.IsForm = true;
-                break;
-            case "formcollection":
-                this.IsFormCollection = true;
-                break;
-        }
+        this.SurveyModelData = context.parameters.SurveyModelData.raw || "{}";
+        this.SurveyData = context.parameters.SurveyData.raw || "{}";
+        this.ReturnNoData = this.ToBoolean(context.parameters.ReturnNoData.raw || "");
+        //this.Completed = context.parameters.Completed.raw || "No"; //Set the default value as 'No' for TwoOption field
+        //this.Completed = this.ToBoolean((context.parameters.Completed.raw || "No")); //Set the default value as 'No' for TwoOption field
+        this.SaveAsPdf = this.ToBoolean(context.parameters.SaveAsPdf.raw || "false");
+    
+        // Parse JSON and render controls
+        this.RenderControls();
     }
 
     private ToBoolean(strInput: string): boolean {
@@ -394,17 +197,14 @@ export class SurveyJsForm implements ComponentFramework.StandardControl<IInputs,
     private RenderControls(): void {
         try {
             this.oParam.SurveyModelData = JSON.parse(this.SurveyModelData);
-            //this.oParam.SurveyPdfModelData = JSON.stringify(JSON.parse(this.SurveyModelData).pages);//JSON.parse(this.SurveyModelData).pages;
-            //this.oParam.SurveyPdfModelData = "{\"pages\":" + JSON.stringify(JSON.parse(this.SurveyModelData).pages) + "}";//JSON.parse(this.SurveyModelData).pages;
         } catch (error) {
-            console.log("Error parsing JSON:", error);
+            console.log("Error parsing JSON (SurveyModelData):", error);
             this.oParam.SurveyModelData = "{}";
-            //this.oParam.SurveyPdfModelData = "{}";
         }
         try {
             this.oParam.SurveyData = JSON.parse(this.SurveyData);
         } catch (error) {
-            console.log("Error parsing JSON:", error);
+            console.log("Error parsing JSON (SurveyData):", error);
             this.oParam.SurveyData = "{}";
         }
         this.oParam.ReadOnly = this.ReadOnly;
