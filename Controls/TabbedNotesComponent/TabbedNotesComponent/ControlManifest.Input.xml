@@ -19,7 +19,7 @@
     </external-service-usage>
     <!-- property node identifies a specific, configurable piece of data that the control expects from CDS -->
     <property name="ComponentJson" display-name-key="Output Data" description-key="Output JSON from the component" of-type="Multiple" usage="bound" required="true" />
-    <property name="ComponentUiJson" display-name-key="Input Data" description-key="JSON for UI components" of-type="SingleLine.Text" usage="input" required="true" />
+    <property name="ComponentUiJson" display-name-key="Input Data" description-key="JSON for UI components" of-type="Multiple" usage="input" required="true" />
     <property name="ReadOnly" display-name-key="ReadOnly" description-key="Set ReadOnly property for the component - True/False" of-type="SingleLine.Text" usage="input" required="true" />
 
     <!--
